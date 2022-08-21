@@ -5,13 +5,13 @@ extern crate gl;
 const SCR_WIDTH: u32 = 800;
 const SCR_HEIGHT: u32 = 600;
 
+/// 当前这个例子，拖动调整窗口的时候会有并不会是全黑，1_1_2 修复了这个问题
 pub fn main_1_1_1() {
-    init_window();
+    init_window(|| {});
 }
 
 /// 创建一个黑色的窗口，点击 `Esc` 键会关闭窗口。
-/// fixme 拖动调整窗口的时候会有并不会是全黑
-pub fn init_window() {
+pub fn init_window(f: fn()) {
     // initialize and configure
     let mut fw = init(glfw::LOG_ERRORS).unwrap();
     fw.window_hint(WindowHint::ContextVersionMajor(3));
@@ -38,6 +38,7 @@ pub fn init_window() {
         // handle input to terminate or loop
         process_input(&mut window);
 
+        f();
         window.swap_buffers();
         fw.poll_events();
     }
