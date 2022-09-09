@@ -8,8 +8,6 @@ edition = "2021"
 [dependencies]
 # create window
 glfw = "0.45.0"
-# binding opengl
-glutin = "0.29.1"
 # GLAD-rs
 gl = "0.14.0"
 
