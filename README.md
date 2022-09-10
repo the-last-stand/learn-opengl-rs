@@ -1,11 +1,16 @@
 # learn-opengl-rs
-Rust port of [JoeyDeVries/LearnOpenGL](https://github.com/JoeyDeVries/LearnOpenGL). Inspired by https://github.com/bwasty/learn-opengl-rs
+Learn OpenGL by samples.
+
+Inspired by https://github.com/bwasty/learn-opengl-rs
 
 ## Quick Start
 
-Call with the number of the tutorial.
-
-e.g. run _1_1_hello_window.rs
+run the sample to show a (black) window, and you can press `Esc` to dismiss it.
 ```
-cargo run 1_1_1
+cargo run 
+```
+
+If you want to change to a different sample:
+```
+git checkout chapters
 ```
