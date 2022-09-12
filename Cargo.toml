@@ -9,4 +9,4 @@ edition = "2021"
 # create window
 glfw = "0.45.0"
 # GLAD-rs
-# gl = "0.14.0"
+gl = "0.14.0"

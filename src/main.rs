@@ -3,6 +3,7 @@ use window::window_manager::GlWindow;
 use window::WindowContainer;
 
 mod window;
+mod drawing;
 
 const SCR_WIDTH: u32 = 800;
 const SCR_HEIGHT: u32 = 600;

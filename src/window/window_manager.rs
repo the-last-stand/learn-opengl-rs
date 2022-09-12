@@ -1,5 +1,6 @@
 use glfw::{init, Action, Context, Glfw, Key, OpenGlProfileHint, WindowHint, WindowMode};
 
+use crate::drawing::{Canvas, DARK_BLUE};
 pub struct GlWindow {
     width: u32,
     height: u32,
@@ -43,6 +44,10 @@ pub(crate) trait WindowContainer {
 }
 
 impl WindowContainer for GlWindow {
+    fn is_showing(&self) -> bool {
+        self.is_visible
+    }
+
     fn show(&mut self) {
         let (mut window, _events) = self
             .glfw
@@ -59,6 +64,8 @@ impl WindowContainer for GlWindow {
         // 这个库默认是注册了 framebuffer_size_callback 回调，然后只暴露是否开启这个开关
         window.set_framebuffer_size_polling(true);
 
+        let canvas = Canvas::from(&mut window);
+
         self.is_visible = true;
         // render loop
         while self.is_visible {
@@ -66,6 +73,8 @@ impl WindowContainer for GlWindow {
             if window.get_key(Key::Escape) == Action::Press {
                 self.dismiss();
             }
+
+            canvas.draw_background(DARK_BLUE);
 
             window.swap_buffers();
 
@@ -76,9 +85,5 @@ impl WindowContainer for GlWindow {
 
     fn dismiss(&mut self) {
         self.is_visible = false
-    }
-
-    fn is_showing(&self) -> bool {
-        self.is_visible
     }
 }
