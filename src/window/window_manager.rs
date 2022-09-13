@@ -32,6 +32,11 @@ impl GlWindow {
             title: String::from(title),
         }
     }
+
+    fn draw(&self, canvas: &Canvas) {
+        canvas.draw_background(DARK_BLUE);
+        canvas.draw_triangle();
+    }
 }
 
 pub(crate) trait WindowContainer {
@@ -74,7 +79,7 @@ impl WindowContainer for GlWindow {
                 self.dismiss();
             }
 
-            canvas.draw_background(DARK_BLUE);
+            self.draw(&canvas);
 
             window.swap_buffers();
 
