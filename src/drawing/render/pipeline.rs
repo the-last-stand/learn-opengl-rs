@@ -10,27 +10,30 @@ pub(crate) struct Pipeline {
 const VERTEX_SHADER_SOURCE: &str = r#"
     #version 330 core
     layout (location = 0) in vec3 aPos;
+    layout (location = 1) in vec3 aColor;
+    
+    out vec3 ourColor;
     void main() {
-       gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+        gl_Position = vec4(aPos, 1.0);
+        ourColor = aColor;
     }
 "#;
 
 const FRAGMENT_SHADER_SOURCE: &str = r#"
     #version 330 core
+    in vec3 ourColor;
     out vec4 FragColor;
     void main() {
-       FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+       FragColor = vec4(ourColor, 1.0);
     }
 "#;
 
-const RECTANGLE_VERTICES: [f32; 12] = [
-    0.5, 0.5, 0.0, // top right
-    0.5, -0.5, 0.0, // bottom right
-    -0.5, -0.5, 0.0, // bottom left
-    -0.5, 0.5, 0.0, // top left
+const RECTANGLE_VERTICES: [f32; 18] = [
+    // positions         // colors
+    0.5, -0.5, 0.0, 1.0, 0.0, 0.0, // bottom right
+    -0.5, -0.5, 0.0, 0.0, 1.0, 0.0, // bottom left
+    0.0, 0.5, 0.0, 0.0, 0.0, 1.0, // top
 ];
-
-const INDICES: [i32; 6] = [0, 1, 3, 1, 2, 3];
 
 impl Pipeline {
     pub fn new() -> Self {
@@ -47,9 +50,8 @@ impl Pipeline {
 
     pub fn render(&self) {
         unsafe {
-            gl::UseProgram(self.program);
             gl::BindVertexArray(self.vao);
-            gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, ptr::null());
+            gl::DrawArrays(gl::TRIANGLES, 0, 3);
         }
     }
 
@@ -72,7 +74,7 @@ impl Pipeline {
     }
 
     unsafe fn bind_buffer(&self) -> u32 {
-        let (mut vbo, mut ebo, mut vao) = (0, 0, 0);
+        let (mut vbo, mut vao) = (0, 0);
         gl::GenVertexArrays(1, &mut vao);
         gl::BindVertexArray(vao);
 
@@ -86,34 +88,29 @@ impl Pipeline {
             gl::STATIC_DRAW,
         );
 
-        // element buffer
-        gl::GenBuffers(1, &mut ebo);
-        gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
-        gl::BufferData(
-            gl::ELEMENT_ARRAY_BUFFER,
-            (INDICES.len() * mem::size_of::<i32>()) as GLsizeiptr,
-            &INDICES[0] as *const i32 as *const c_void,
-            gl::STATIC_DRAW,
-        );
+        let stride = 6 * mem::size_of::<GLfloat>() as GLsizei;
+
+        gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, stride, ptr::null());
+        gl::EnableVertexAttribArray(0);
 
         gl::VertexAttribPointer(
-            0,
+            1,
             3,
             gl::FLOAT,
             gl::FALSE,
-            3 * mem::size_of::<GLfloat>() as GLsizei,
-            ptr::null(),
+            stride,
+            (3 * mem::size_of::<GLfloat>()) as *const c_void // offset,
         );
-        gl::EnableVertexAttribArray(0);
+        gl::EnableVertexAttribArray(1);
+
         // note that this is allowed, the call to gl::VertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
         gl::BindBuffer(gl::ARRAY_BUFFER, 0);
 
         // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
         // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-        gl::BindVertexArray(0);
+        // gl::BindVertexArray(0);
+        gl::UseProgram(self.program);
 
-        // uncomment this call to draw in wireframe polygons.
-        // gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
         vao
     }
 }
