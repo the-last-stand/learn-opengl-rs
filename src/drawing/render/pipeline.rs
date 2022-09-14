@@ -1,6 +1,8 @@
-use std::{ffi::CString, io::Error, mem, os::raw::c_void, ptr};
+use std::{io::Error, mem, os::raw::c_void, ptr};
 
 use gl::types::{GLfloat, GLsizei, GLsizeiptr};
+
+use super::shader::{Shader, ShaderType};
 
 pub(crate) struct Pipeline {
     program: u32,
@@ -55,20 +57,20 @@ impl Pipeline {
         }
     }
 
-    unsafe fn create_shaders(&self) -> Result<(VertexShader, FragmentShader), Error> {
+    unsafe fn create_shaders(&self) -> Result<(Shader, Shader), Error> {
         let (vertex_shader, fragment_shader) = {
-            let v = VertexShader::from(VERTEX_SHADER_SOURCE);
-            let f = FragmentShader::from(FRAGMENT_SHADER_SOURCE);
+            let v = Shader::new(VERTEX_SHADER_SOURCE, ShaderType::VertexShader);
+            let f = Shader::new(FRAGMENT_SHADER_SOURCE, ShaderType::FragmentShader);
             (v, f)
         };
 
         Ok((vertex_shader, fragment_shader))
     }
 
-    unsafe fn link_shaders(&self, v: VertexShader, f: FragmentShader) -> u32 {
+    unsafe fn link_shaders(&self, v: Shader, f: Shader) -> u32 {
         let program = gl::CreateProgram();
-        gl::AttachShader(program, v.shader);
-        gl::AttachShader(program, f.shader);
+        gl::AttachShader(program, v.shader_id);
+        gl::AttachShader(program, f.shader_id);
         gl::LinkProgram(program);
         program
     }
@@ -99,7 +101,7 @@ impl Pipeline {
             gl::FLOAT,
             gl::FALSE,
             stride,
-            (3 * mem::size_of::<GLfloat>()) as *const c_void // offset,
+            (3 * mem::size_of::<GLfloat>()) as *const c_void, // offset,
         );
         gl::EnableVertexAttribArray(1);
 
@@ -112,53 +114,5 @@ impl Pipeline {
         gl::UseProgram(self.program);
 
         vao
-    }
-}
-
-pub struct VertexShader {
-    shader: u32,
-}
-
-impl From<&str> for VertexShader {
-    fn from(source: &str) -> Self {
-        unsafe {
-            let shader = gl::CreateShader(gl::VERTEX_SHADER);
-            let c_str_vert = CString::new(source.as_bytes()).unwrap();
-            gl::ShaderSource(shader, 1, &c_str_vert.as_ptr(), ptr::null());
-            gl::CompileShader(shader);
-            VertexShader { shader }
-        }
-    }
-}
-
-impl Drop for VertexShader {
-    fn drop(&mut self) {
-        unsafe {
-            gl::DeleteShader(self.shader);
-        }
-    }
-}
-
-pub struct FragmentShader {
-    shader: u32,
-}
-
-impl From<&str> for FragmentShader {
-    fn from(source: &str) -> Self {
-        unsafe {
-            let shader = gl::CreateShader(gl::FRAGMENT_SHADER);
-            let c_str_vert = CString::new(source.as_bytes()).unwrap();
-            gl::ShaderSource(shader, 1, &c_str_vert.as_ptr(), ptr::null());
-            gl::CompileShader(shader);
-            FragmentShader { shader }
-        }
-    }
-}
-
-impl Drop for FragmentShader {
-    fn drop(&mut self) {
-        unsafe {
-            gl::DeleteShader(self.shader);
-        }
     }
 }
