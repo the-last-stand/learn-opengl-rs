@@ -10,3 +10,5 @@ edition = "2021"
 glfw = "0.45.0"
 # GLAD-rs
 gl = "0.14.0"
+# A linear algebra and mathematics library for computer graphics.
+cgmath = "0.18.0"
