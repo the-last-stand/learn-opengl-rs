@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use glfw::{init, Action, Context, Glfw, Key, OpenGlProfileHint, WindowHint, WindowMode};
 
 use crate::drawing::{Canvas, DARK_BLUE};
@@ -33,9 +35,10 @@ impl GlWindow {
         }
     }
 
-    fn draw(&self, canvas: &Canvas) {
+    fn draw(&self, canvas: &mut Canvas) {
         canvas.draw_background(DARK_BLUE);
-        canvas.draw_triangle();
+        // canvas.draw_triangle();
+        canvas.draw_image(&Path::new("./src/res/images/avatar.jpeg"));
     }
 }
 
@@ -69,7 +72,7 @@ impl WindowContainer for GlWindow {
         // 这个库默认是注册了 framebuffer_size_callback 回调，然后只暴露是否开启这个开关
         window.set_framebuffer_size_polling(true);
 
-        let canvas = Canvas::from(&mut window);
+        let mut canvas = Canvas::from(&mut window);
 
         self.is_visible = true;
         // render loop
@@ -79,7 +82,7 @@ impl WindowContainer for GlWindow {
                 self.dismiss();
             }
 
-            self.draw(&canvas);
+            self.draw(&mut canvas);
 
             window.swap_buffers();
 
