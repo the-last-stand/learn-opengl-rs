@@ -2,7 +2,6 @@ use std::{ffi::CString, fs, path::Path, ptr, str::from_utf8};
 
 use gl::types::{GLchar, GLint};
 
-
 #[derive(Debug)]
 pub enum ShaderType {
     FragmentShader,
@@ -30,6 +29,7 @@ impl Shader {
             let c_str_vert = CString::new(source.as_bytes()).unwrap();
             gl::ShaderSource(shader_id, 1, &c_str_vert.as_ptr(), ptr::null());
             gl::CompileShader(shader_id);
+            // logcat!(source);
             check_compile_errors(shader_id, shader_type);
             Shader { shader_id }
         }

@@ -1,8 +1,6 @@
-use std::{mem, os::raw::c_void, path::Path, ptr};
+use std::{mem, os::raw::c_void};
 
 use gl::types::{GLfloat, GLsizei, GLsizeiptr};
-
-use crate::utils::logger::logcat;
 
 pub struct VertexManager {
     vertex_array: u32,
@@ -16,7 +14,7 @@ impl VertexManager {
             let mut arrays: u32 = 0;
             gl::GenVertexArrays(1 /*count*/, &mut arrays);
             gl::BindVertexArray(arrays);
-            logcat!(format!(r#"vertex_arrays: {}"#, arrays));
+            // logcat!(format!(r#"vertex_arrays: {}"#, arrays));
             Self {
                 vertex_array: arrays,
             }
@@ -39,18 +37,19 @@ impl VertexManager {
 
     pub unsafe fn enable_vertex_attri(
         self,
+        stride_length: i32,
         index: u32,
         size: i32,
         offset_pointer: *const c_void,
     ) -> Self {
-        let stride = 6 * mem::size_of::<GLfloat>() as GLsizei;
+        let stride = stride_length * mem::size_of::<GLfloat>() as GLsizei;
         gl::VertexAttribPointer(index, size, gl::FLOAT, gl::FALSE, stride, offset_pointer);
         gl::EnableVertexAttribArray(index);
         self
     }
 
     pub unsafe fn build(self) -> u32 {
-        gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+        // gl::BindBuffer(gl::ARRAY_BUFFER, 0);
         self.vertex_array
     }
 }
