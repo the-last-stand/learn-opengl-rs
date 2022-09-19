@@ -4,6 +4,7 @@ use window::WindowContainer;
 
 mod window;
 mod drawing;
+mod utils;
 
 const SCR_WIDTH: u32 = 800;
 const SCR_HEIGHT: u32 = 600;
